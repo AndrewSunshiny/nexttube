@@ -1,10 +1,11 @@
 'use client';
 
 import VideoCard from './VideoCard';
-import { useGetTrendingVideosQuery } from '~/store/api/youtubeApi';
+import { useGetVideosQuery } from '~/store/api/youtubeApi';
 
 export default function Feed() {
-  const { data: videos, isLoading, isError } = useGetTrendingVideosQuery();
+  const { data: response, isLoading, isError } = useGetVideosQuery();
+  const videos = response?.videos;
 
   if (isLoading) {
     return (

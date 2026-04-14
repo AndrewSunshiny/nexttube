@@ -8,3 +8,8 @@ export interface Video {
   timestamp: string;
   duration: string;
 }
+
+export interface YouTubeResponse {
+  videos: Video[];
+  nextPageToken: string | null;
+}
