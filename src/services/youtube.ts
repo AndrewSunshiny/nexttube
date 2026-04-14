@@ -6,18 +6,45 @@ const youtube = google.youtube({
   auth: process.env.YOUTUBE_API_KEY,
 });
 
-export async function getTrendingVideos(maxResults = 20): Promise<Video[]> {
+export interface YouTubeResponse {
+  videos: Video[];
+  nextPageToken: string | null;
+}
+
+export async function getVideos(
+  pageToken?: string,
+  maxResults = 20,
+): Promise<YouTubeResponse> {
   try {
-    const response = await youtube.videos.list({
-      part: ['snippet', 'contentDetails', 'statistics'],
-      chart: 'mostPopular',
+    // 1. Search for videos to get the list of IDs and the nextPageToken
+    const searchResponse = await youtube.search.list({
+      part: ['snippet'],
       maxResults: maxResults,
+      pageToken: pageToken,
+      q: 'trending', // Using a search query to allow pagination
+      type: ['video'],
       regionCode: 'US',
     });
 
-    const items = response.data.items || [];
+    const searchItems = searchResponse.data.items || [];
+    const videoIds = searchItems
+      .map((item) => item.id?.videoId)
+      .filter(Boolean) as string[];
+    const nextPageToken = searchResponse.data.nextPageToken || null;
 
-    return items.map((item) => ({
+    if (videoIds.length === 0) {
+      return { videos: [], nextPageToken: null };
+    }
+
+    // 2. Fetch full details for those IDs to get views and duration
+    const videoDetailsResponse = await youtube.videos.list({
+      part: ['snippet', 'contentDetails', 'statistics'],
+      id: videoIds.join(','),
+    });
+
+    const videoItems = videoDetailsResponse.data.items || [];
+
+    const videos = videoItems.map((item) => ({
       id: item.id!,
       title: item.snippet?.title || 'Untitled Video',
       thumbnailUrl:
@@ -27,11 +54,16 @@ export async function getTrendingVideos(maxResults = 20): Promise<Video[]> {
       channelName: item.snippet?.channelTitle || 'Unknown Channel',
       channelAvatarUrl: `https://i.pravatar.cc/150?u=${item.snippet?.channelId}`,
       views: formatViews(item.statistics?.viewCount),
-      timestamp: 'Recent', // YouTube API doesn't give a simple "2 days ago" string
+      timestamp: 'Recent',
       duration: formatDuration(item.contentDetails?.duration || 'PT0M0S'),
     }));
+
+    return {
+      videos,
+      nextPageToken,
+    };
   } catch (error) {
-    console.error('Error fetching trending videos from YouTube API:', error);
+    console.error('Error fetching videos from YouTube API:', error);
     throw new Error('Failed to fetch videos from YouTube');
   }
 }
@@ -45,7 +77,6 @@ function formatViews(views: string | undefined): string {
 }
 
 function formatDuration(duration: string): string {
-  // ISO 8601 duration format (e.g., PT15M30S)
   const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   if (!match) return '0:00';
 
