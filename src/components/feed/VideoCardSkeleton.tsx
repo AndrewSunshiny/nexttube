@@ -1,16 +1,21 @@
 import React from 'react';
+import VideoCardLayout from './VideoCardLayout';
 
 export default function VideoCardSkeleton() {
   return (
-    <div className="flex animate-pulse flex-col gap-3">
-      <div className="relative aspect-video w-full rounded-xl bg-zinc-200 dark:bg-zinc-800" />
-      <div className="flex gap-3">
-        <div className="h-9 w-9 shrink-0 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-        <div className="flex flex-1 flex-col gap-2">
-          <div className="h-4 w-3/4 rounded bg-zinc-200 dark:bg-zinc-800" />
-          <div className="h-3 w-1/2 rounded bg-zinc-200 dark:bg-zinc-800" />
-        </div>
-      </div>
-    </div>
+    <VideoCardLayout
+      thumbnail={
+        <div className="h-full w-full animate-pulse bg-zinc-200 dark:bg-zinc-800" />
+      }
+      avatar={
+        <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
+      }
+      title={
+        <div className="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+      }
+      meta={
+        <div className="h-3 w-1/2 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+      }
+    />
   );
 }
