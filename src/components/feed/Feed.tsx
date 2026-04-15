@@ -61,20 +61,16 @@ export default function Feed() {
         {videos?.map((video) => (
           <VideoCard key={video.id} video={video} />
         ))}
+        {isFetching &&
+          Array.from({ length: 6 }).map((_, i) => (
+            <VideoCardSkeleton key={`skeleton-${i}`} />
+          ))}
       </div>
 
       <div
         ref={sentinelRef}
         className="flex flex-col items-center justify-center p-8"
       >
-        {isFetching && videos && (
-          <div className="grid w-full grid-cols-1 gap-x-4 gap-y-8 p-4 sm:grid-cols-2 sm:p-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <VideoCardSkeleton key={i} />
-            ))}
-          </div>
-        )}
-
         {isError && videos && (
           <div className="flex flex-col items-center gap-2 text-center">
             <p className="text-sm text-zinc-500">Error loading more videos.</p>

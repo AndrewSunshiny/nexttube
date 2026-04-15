@@ -16,33 +16,17 @@ export async function getVideos(
   maxResults = 20,
 ): Promise<YouTubeResponse> {
   try {
-    // 1. Search for videos to get the list of IDs and the nextPageToken
-    const searchResponse = await youtube.search.list({
-      part: ['snippet'],
+    // Fetch most popular videos directly
+    const response = await youtube.videos.list({
+      part: ['snippet', 'contentDetails', 'statistics'],
+      chart: 'mostPopular',
+      regionCode: 'US',
       maxResults: maxResults,
       pageToken: pageToken,
-      q: 'trending', // Using a search query to allow pagination
-      type: ['video'],
-      regionCode: 'US',
     });
 
-    const searchItems = searchResponse.data.items || [];
-    const videoIds = searchItems
-      .map((item) => item.id?.videoId)
-      .filter(Boolean) as string[];
-    const nextPageToken = searchResponse.data.nextPageToken || null;
-
-    if (videoIds.length === 0) {
-      return { videos: [], nextPageToken: null };
-    }
-
-    // 2. Fetch full details for those IDs to get views and duration
-    const videoDetailsResponse = await youtube.videos.list({
-      part: ['snippet', 'contentDetails', 'statistics'],
-      id: videoIds.join(','),
-    });
-
-    const videoItems = videoDetailsResponse.data.items || [];
+    const videoItems = response.data.items || [];
+    const nextPageToken = response.data.nextPageToken || null;
 
     const videos = videoItems.map((item) => ({
       id: item.id!,

@@ -1,22 +1,39 @@
+import { memo } from 'react';
 import Image from 'next/image';
 import { Video } from '~/types/video';
 import VideoCardLayout from './VideoCardLayout';
+import { useImageLoading } from '~/hooks/useImageLoading';
 
 interface VideoCardProps {
   video: Video;
 }
 
-export default function VideoCard({ video }: VideoCardProps) {
+const TRANSITION_DURATION = 300; // in ms
+
+const VideoCard = memo(function VideoCard({ video }: VideoCardProps) {
+  const { loading, handleThumbnailLoad, handleAvatarLoad } =
+    useImageLoading(TRANSITION_DURATION);
+
   return (
     <VideoCardLayout
       thumbnail={
         <>
+          {loading.thumbGhost && (
+            <div
+              className={`absolute inset-0 z-10 animate-pulse bg-zinc-200 transition-opacity duration-300 dark:bg-zinc-800 ${
+                loading.thumb ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+            />
+          )}
           <Image
             src={video.thumbnailUrl}
             alt={video.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-            className="object-cover transition-transform group-hover:scale-105"
+            className={`object-cover transition-all duration-300 group-hover:scale-105 ${
+              loading.thumb ? 'opacity-0' : 'opacity-100'
+            }`}
+            onLoad={handleThumbnailLoad}
           />
           <div className="absolute right-2 bottom-2 rounded bg-black/80 px-1.5 py-0.5 text-xs font-medium text-white">
             {video.duration}
@@ -24,13 +41,25 @@ export default function VideoCard({ video }: VideoCardProps) {
         </>
       }
       avatar={
-        <Image
-          src={video.channelAvatarUrl}
-          alt={video.channelName}
-          width={36}
-          height={36}
-          className="rounded-full"
-        />
+        <div className="relative h-9 w-9">
+          {loading.avatarGhost && (
+            <div
+              className={`absolute inset-0 z-10 animate-pulse rounded-full bg-zinc-200 transition-opacity duration-300 dark:bg-zinc-800 ${
+                loading.avatar ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+            />
+          )}
+          <Image
+            src={video.channelAvatarUrl}
+            alt={video.channelName}
+            width={36}
+            height={36}
+            className={`rounded-full transition-opacity duration-300 ${
+              loading.avatar ? 'opacity-0' : 'opacity-100'
+            }`}
+            onLoad={handleAvatarLoad}
+          />
+        </div>
       }
       title={
         <h3 className="line-clamp-2 text-sm leading-snug font-semibold text-zinc-900 dark:text-zinc-100">
@@ -49,4 +78,8 @@ export default function VideoCard({ video }: VideoCardProps) {
       }
     />
   );
-}
+});
+
+VideoCard.displayName = 'VideoCard';
+
+export default VideoCard;
