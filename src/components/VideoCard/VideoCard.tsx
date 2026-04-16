@@ -54,7 +54,7 @@ const VideoCard = memo(function VideoCard({
             onLoad={handleThumbnailLoad}
             onError={() => setThumbnailError(true)}
           />
-          <div className="absolute right-2 bottom-2 rounded bg-black/80 px-1.5 py-0.5 text-xs font-medium text-white">
+          <div className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs font-medium text-white">
             {video.duration}
           </div>
         </>
@@ -78,7 +78,7 @@ const VideoCard = memo(function VideoCard({
         </div>
       }
       title={
-        <h3 className="line-clamp-2 text-sm leading-snug font-semibold text-zinc-900 dark:text-zinc-100">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
           {video.title}
         </h3>
       }

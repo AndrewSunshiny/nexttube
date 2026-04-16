@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-import VideoCard from './VideoCard';
-import VideoCardSkeleton from './VideoCardSkeleton';
+import VideoCard from '../VideoCard/VideoCard';
+import VideoCardSkeleton from '../VideoCard/VideoCardSkeleton';
 import { useLazyGetVideosQuery } from '~/store/api/youtubeApi';
 
 export default function Feed() {
