@@ -13,7 +13,18 @@ This document contains detailed information about the project-specific technical
 ### Data Fetching
 
 - **BFF (Backend-for-Frontend)**: All YouTube API calls are proxied through Next.js Route Handlers (`/api/...`) to keep the API key secure on the server.
-- **Infinite Scroll**: Implemented using `react-intersection-observer` and RTK Query's `merge` and `serializeQueryArgs` to append pages of data to the cache.
+- **YouTube Integration**: The `googleapis` library is used within `src/services/youtube.ts` to interact with the YouTube Data API and map responses to internal types.
+- **Infinite Scroll**:
+  - Implemented using `react-intersection-observer` in `src/components/feed/Feed.tsx`.
+  - A sentinel element at the bottom of the feed triggers the next page fetch by updating the `pageToken` state.
+  - RTK Query's `merge` and `serializeQueryArgs` are used in the API slice to append new pages of data to the cache instead of replacing them.
+
+### Image Handling
+
+- **Optimization Bypass**: YouTube thumbnails use the `unoptimized` prop in the Next.js `Image` component. This prevents "upstream response is invalid" errors from the Next.js Image Optimization API and reduces latency by fetching directly from Google's CDN.
+- **Loading States**:
+  - **Shimmer Effect**: A custom CSS shimmer animation (defined in `src/app/globals.css` as `.shimmer-wrapper`) is used to provide a professional loading experience for thumbnails and avatars.
+  - **Fallback Strategy**: If a thumbnail fails to load (`onError`), a static fallback image from `picsum.photos` is used to maintain UI consistency.
 
 ## Patterns & Conventions
 
@@ -23,7 +34,8 @@ This document contains detailed information about the project-specific technical
 
 ### Component Structure
 
-- **Layouts**: Global elements (Header, Sidebar) are defined in `src/app/layout.tsx`.
+- **Layouts**: Global elements (Header, Sidebar) are defined in `src/app/layout.tsx` and implemented in `src/components/layout/`.
+- **Feature Components**: Feature-specific components (e.g., Feed, VideoCard) are located in `src/components/feed/`.
 - **Providers**: Application-wide providers (StoreProvider) wrap the root layout.
 
 ### Naming Conventions
@@ -31,3 +43,13 @@ This document contains detailed information about the project-specific technical
 - **Folders**: `kebab-case` for routes and general directories.
 - **Components**: `PascalCase` for React components.
 - **Services**: `camelCase` for utility and service files.
+
+## Directory Structure
+
+- `src/app`: Next.js App Router configuration, layouts, and API route handlers.
+- `src/components`: Reusable UI components, split into `layout/` and `feed/`.
+- `src/hooks`: Custom React hooks.
+- `src/mocks`: Static mock data for development (e.g., `videos.json`).
+- `src/services`: API interaction logic and data transformation.
+- `src/store`: Redux store configuration and RTK Query slices.
+- `src/types`: Centralized TypeScript definitions.
