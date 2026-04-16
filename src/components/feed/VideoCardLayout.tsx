@@ -5,6 +5,7 @@ interface VideoCardLayoutProps {
   avatar: React.ReactNode;
   title: React.ReactNode;
   meta: React.ReactNode;
+  className?: string;
 }
 
 export default function VideoCardLayout({
@@ -12,9 +13,10 @@ export default function VideoCardLayout({
   avatar,
   title,
   meta,
+  className,
 }: VideoCardLayoutProps) {
   return (
-    <div className="group flex cursor-pointer flex-col gap-3">
+    <div className={`group flex cursor-pointer flex-col gap-3 ${className}`}>
       <div className="relative aspect-video w-full overflow-hidden rounded-xl">
         {thumbnail}
       </div>
