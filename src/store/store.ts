@@ -1,14 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import { youtubeApi } from './api/youtubeApi';
+import { apiSlice } from './api/apiSlice';
 
 export const makeStore = () => {
   const store = configureStore({
     reducer: {
-      [youtubeApi.reducerPath]: youtubeApi.reducer,
+      [apiSlice.reducerPath]: apiSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(youtubeApi.middleware),
+      getDefaultMiddleware().concat(apiSlice.middleware),
   });
 
   setupListeners(store.dispatch);

@@ -1,14 +1,29 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Video } from '~/types/video';
+import { apiSlice } from './apiSlice';
+import { YouTubeResponse } from '~/types/video';
 
-export const youtubeApi = createApi({
-  reducerPath: 'youtubeApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+export const youtubeApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getTrendingVideos: builder.query<Video[], void>({
-      query: () => '/videos',
+    getVideos: builder.query<YouTubeResponse, string | void>({
+      query: (pageToken) => ({
+        url: '/videos',
+        params: pageToken ? { pageToken } : {},
+      }),
+      serializeQueryArgs: ({ endpointName }) => {
+        return endpointName;
+      },
+      merge: (currentCache, newItems) => {
+        if (currentCache.videos) {
+          const existingIds = new Set(currentCache.videos.map((v) => v.id));
+          const uniqueNewItems = newItems.videos.filter(
+            (v) => !existingIds.has(v.id),
+          );
+          currentCache.videos.push(...uniqueNewItems);
+        }
+        currentCache.nextPageToken = newItems.nextPageToken;
+      },
     }),
   }),
+  overrideExisting: false,
 });
 
-export const { useGetTrendingVideosQuery } = youtubeApi;
+export const { useGetVideosQuery, useLazyGetVideosQuery } = youtubeApi;

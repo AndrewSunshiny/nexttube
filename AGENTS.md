@@ -1,5 +1,6 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# Agents
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+This project contains instructions and context for AI agents.
+
+- [README](./.agents/README.md): General instructions and conventions.
+- [CONTEXT](./.agents/CONTEXT.md): Detailed technical decisions and architectural patterns.

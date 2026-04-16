@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
-import { getTrendingVideos } from '~/services/youtube';
+import { NextResponse, NextRequest } from 'next/server';
+import { getVideos } from '~/services/youtube';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const videos = await getTrendingVideos();
-    return NextResponse.json(videos);
+    const { searchParams } = new URL(request.url);
+    const pageToken = searchParams.get('pageToken') || undefined;
+
+    const data = await getVideos(pageToken);
+    return NextResponse.json(data);
   } catch (error) {
     console.error('API Route Error:', error);
     return NextResponse.json(
