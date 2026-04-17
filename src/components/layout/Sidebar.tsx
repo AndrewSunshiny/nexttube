@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { navLinkVariants } from '../ui/layout-variants';
+import { cn } from '~/lib/utils';
 
 const CATEGORIES = [
   { name: 'Home', icon: '🏠' },
@@ -19,7 +21,7 @@ export default function Sidebar() {
           <Link
             key={category.name}
             href="#"
-            className="flex items-center gap-4 rounded-lg px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            className={cn(navLinkVariants({ active: false }))}
           >
             <span className="text-lg">{category.icon}</span>
             {category.name}
@@ -28,19 +30,13 @@ export default function Sidebar() {
       </nav>
       <hr className="my-3 border-zinc-200 dark:border-zinc-800" />
       <nav className="flex flex-col gap-1">
-        <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="px-3 py-2 text-xs font-semibold tracking-wider text-zinc-500 uppercase">
           Explore
         </div>
-        <Link
-          href="#"
-          className="flex items-center gap-4 rounded-lg px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
-        >
+        <Link href="#" className={cn(navLinkVariants({ active: false }))}>
           <span className="text-lg">🔥</span> Trending
         </Link>
-        <Link
-          href="#"
-          className="flex items-center gap-4 rounded-lg px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
-        >
+        <Link href="#" className={cn(navLinkVariants({ active: false }))}>
           <span className="text-lg">🎶</span> Music
           <span className="text-lg">🎮</span> Gaming
         </Link>
