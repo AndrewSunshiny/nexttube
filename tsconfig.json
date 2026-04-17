@@ -19,7 +19,17 @@
       }
     ],
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "~components/*": ["./src/components/*"],
+      "~layout/*": ["./src/components/layout/*"],
+      "~ui/*": ["./src/components/ui/*"],
+      "~primitives/*": ["./src/components/primitives/*"],
+      "~hooks/*": ["./src/hooks/*"],
+      "~lib/*": ["./src/lib/*"],
+      "~mocks/*": ["./src/mocks/*"],
+      "~services/*": ["./src/services/*"],
+      "~store/*": ["./src/store/*"],
+      "~types/*": ["./src/types/*"]
     }
   },
   "include": [
