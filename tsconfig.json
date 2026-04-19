@@ -23,6 +23,7 @@
       "~components/*": ["./src/components/*"],
       "~layout/*": ["./src/components/layout/*"],
       "~ui/*": ["./src/components/ui/*"],
+      "~icons/*": ["./src/components/icons/*"],
       "~primitives/*": ["./src/components/primitives/*"],
       "~hooks/*": ["./src/hooks/*"],
       "~lib/*": ["./src/lib/*"],
