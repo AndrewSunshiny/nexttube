@@ -13,6 +13,7 @@ export default function Feed() {
   const videos = response?.videos;
   const nextToken = response?.nextPageToken;
 
+  
   const { ref: sentinelRef } = useInView({
     rootMargin: '400px',
     onChange: (inView) => {
