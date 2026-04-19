@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '~/lib/utils';
 
 interface VideoCardLayoutProps {
   thumbnail: React.ReactNode;
@@ -16,7 +17,7 @@ export default function VideoCardLayout({
   className,
 }: VideoCardLayoutProps) {
   return (
-    <div className={`group flex cursor-pointer flex-col gap-3 ${className}`}>
+    <div className={cn('group flex cursor-pointer flex-col gap-3', className)}>
       <div className="relative aspect-video w-full overflow-hidden rounded-xl">
         {thumbnail}
       </div>

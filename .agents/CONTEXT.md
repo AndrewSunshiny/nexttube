@@ -30,6 +30,12 @@ This document contains detailed information about the project-specific technical
 
 ## Patterns & Conventions
 
+### Styling
+- **Tailwind CSS**: Primary utility-first styling framework.
+- **CVA (Class Variance Authority)**: Used for defining component variants in a type-safe way.
+- **CN Utility**: The `cn()` function in `src/lib/utils.ts` (combining `clsx` and `tailwind-merge`) is used to merge Tailwind classes and resolve conflicts.
+- **Pattern**: Prefer defining variants with `cva` and applying them via `cn(variants({ ... }), className)`.
+
 ### Import Aliases
 
 - `~` is used as the root alias for the `src` directory.
