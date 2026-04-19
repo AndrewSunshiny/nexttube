@@ -7,24 +7,29 @@ import VideoCardSkeleton from '../VideoCard/VideoCardSkeleton';
 import { useLazyGetVideosQuery } from '~/store/api/youtubeApi';
 
 export default function Feed() {
-  const [trigger, { data: response, isLoading, isFetching, isError, refetch }] =
+  const [fetchVideos, { data: response, isLoading, isFetching, isError }] =
     useLazyGetVideosQuery();
 
   const videos = response?.videos;
   const nextToken = response?.nextPageToken;
 
-  useEffect(() => {
-    trigger(undefined);
-  }, [trigger]);
-
   const { ref: sentinelRef } = useInView({
     rootMargin: '400px',
     onChange: (inView) => {
       if (inView && !isLoading && !isFetching && nextToken) {
-        trigger(nextToken);
+        fetchVideos(nextToken);
       }
     },
   });
+
+  const refetch = () => {
+    if (nextToken) fetchVideos(nextToken);
+    else fetchVideos(undefined, false);
+  };
+
+  useEffect(() => {
+    fetchVideos(undefined);
+  }, [fetchVideos]);
 
   if (isLoading && !videos) {
     return (

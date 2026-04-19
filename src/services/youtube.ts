@@ -52,7 +52,7 @@ export async function getVideos(
   }
 }
 
-function formatViews(views: string | undefined): string {
+function formatViews(views: string | null | undefined): string {
   if (!views) return '0 views';
   const num = parseInt(views, 10);
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M views`;
