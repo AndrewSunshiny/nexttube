@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import StoreProvider from '~/store/provider';
+import StoreProvider from '~/providers/store-provider';
 import ThemeProvider from '~/providers/theme-provider';
 import Header from '~/components/layout/Header';
 import Sidebar from '~/components/layout/Sidebar';
