@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 
 export const skeletonVariants = cva(
-  'animate-pulse bg-zinc-200 dark:bg-zinc-800', 
+  'animate-pulse bg-muted', 
   {
     variants: {
       shape: {
@@ -21,12 +21,27 @@ export const navLinkVariants = cva(
   {
     variants: {
       active: {
-        true: 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100',
-        false: 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900',
+        true: 'bg-secondary text-secondary-foreground',
+        false: 'text-muted-foreground hover:bg-secondary hover:text-secondary-foreground',
       },
     },
     defaultVariants: {
       active: false,
+    },
+  }
+);
+
+export const iconButtonVariants = cva(
+  'flex h-10 w-10 items-center justify-center rounded-full transition-colors', 
+  {
+    variants: {
+      intent: {
+        ghost: 'text-muted-foreground hover:bg-secondary hover:text-secondary-foreground',
+        primary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+      },
+    },
+    defaultVariants: {
+      intent: 'ghost',
     },
   }
 );
@@ -36,28 +51,12 @@ export const buttonVariants = cva(
   {
     variants: {
       intent: {
-        primary: 'bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200',
-        secondary: 'bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700',
+        primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
       },
     },
     defaultVariants: {
       intent: 'primary',
-    },
-  }
-);
-
-
-export const iconButtonVariants = cva(
-  'flex h-10 w-10 items-center justify-center rounded-full transition-colors', 
-  {
-    variants: {
-      intent: {
-        ghost: 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800',
-        primary: 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700',
-      },
-    },
-    defaultVariants: {
-      intent: 'ghost',
     },
   }
 );

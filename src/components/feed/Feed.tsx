@@ -68,12 +68,12 @@ export default function Feed() {
         >
           {isError && videos && (
             <div className="flex flex-col items-center gap-2 text-center">
-              <p className="text-sm text-zinc-500">
+              <p className="text-muted-foreground text-sm">
                 Error loading more videos.
               </p>
               <button
                 onClick={() => refetch()}
-                className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                className={cn(buttonVariants())}
               >
                 Retry
               </button>
@@ -95,10 +95,10 @@ export default function Feed() {
   if (isError) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center p-4 text-center">
-        <h2 className="mb-2 text-xl font-bold text-zinc-900 dark:text-zinc-100">
+        <h2 className="text-foreground mb-2 text-xl font-bold">
           Error loading videos
         </h2>
-        <p className="mb-4 text-zinc-600 dark:text-zinc-400">
+        <p className="text-muted-foreground mb-4">
           Please check your connection and try again.
         </p>
         <Button onClick={() => refetch()}> Retry</Button>

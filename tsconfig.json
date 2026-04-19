@@ -30,7 +30,8 @@
       "~mocks/*": ["./src/mocks/*"],
       "~services/*": ["./src/services/*"],
       "~store/*": ["./src/store/*"],
-      "~types/*": ["./src/types/*"]
+      "~types/*": ["./src/types/*"],
+      "~providers/*": ["./src/provider/*"]
     }
   },
   "include": [

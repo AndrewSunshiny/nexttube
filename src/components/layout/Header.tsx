@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { Button } from '~/components/ui/button';
 import SearchBar from '~/components/search/SearchBar';
+import { ThemeToggle } from '~/components/ui/ThemeToggle';
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-zinc-200 bg-white px-4 dark:border-zinc-800 dark:bg-zinc-950">
+    <header className="border-border bg-background sticky top-0 z-50 flex h-14 items-center justify-between border-b px-4">
       {/* Logo Section */}
       <div className="flex items-center gap-4">
         <Button variant="ghost">
@@ -27,7 +28,7 @@ export default function Header() {
           </svg>
         </Button>
         <Link href="/" className="group flex items-center">
-          <span className="text-xl font-bold tracking-tighter text-zinc-900 dark:text-zinc-100">
+          <span className="text-foreground text-xl font-bold tracking-tighter">
             NextTube
           </span>
         </Link>
@@ -38,9 +39,10 @@ export default function Header() {
         <SearchBar />
       </div>
 
-      {/* Right Section (Placeholder for Profile/Upload) */}
-      <div className="flex w-10 items-center gap-3">
-        {/* To be implemented later */}
+      {/* Right Section */}
+      <div className="flex items-center gap-3">
+        <ThemeToggle />
+        {/* Profile/Upload placeholder can go here */}
       </div>
     </header>
   );

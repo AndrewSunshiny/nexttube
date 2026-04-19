@@ -91,16 +91,18 @@ const VideoCard = memo(function VideoCard({
           />
         </div>
       }
-      title={
-        <h3 className="line-clamp-2 text-sm leading-snug font-semibold text-zinc-900 dark:text-zinc-100">
-          {video.title}
-        </h3>
-      }
-      meta={
-        <div className="flex flex-col text-xs text-zinc-600 dark:text-zinc-400">
-          <span className="transition-colors hover:text-zinc-900 dark:hover:text-zinc-100">
-            {video.channelName}
-          </span>
+        title={
+          <h3 className="line-clamp-2 text-sm leading-snug font-semibold text-foreground">
+            {video.title}
+          </h3>
+        }
+        meta={
+          <div className="flex flex-col text-xs text-muted-foreground">
+            <span className="transition-colors hover:text-foreground">
+              {video.channelName}
+            </span>
+
+
           <span className="flex items-center gap-1">
             {video.views} • {video.timestamp}
           </span>

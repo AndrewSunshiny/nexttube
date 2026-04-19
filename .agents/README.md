@@ -21,6 +21,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Use `~` as the import alias for the `src` directory.
 - Prefix project commands with `bunx --bun` (e.g., `bunx --bun prettier --write .`).
 - Do NOT read previous agent sessions inside `.agents/sessions` unless told to do so.
+- Do NOT add or modify components inside `src/components/ui` as this folder is reserved for basic UI primitives from shadcn/ui.
 
 # Project Context
 

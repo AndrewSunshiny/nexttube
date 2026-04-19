@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 
 export const ghostVariants = cva(
-  'animate-pulse bg-zinc-200 dark:bg-zinc-800', 
+  'animate-pulse bg-muted', 
   {
     variants: {
       shape: {
