@@ -5,23 +5,28 @@ This document contains detailed information about the project-specific technical
 ## Architecture Decisions
 
 ### State Management
-
 - **Redux Toolkit (RTK)**: Used for global UI state.
 - **RTK Query**: Used for server-state management (API fetching, caching, and pagination).
 - **Factory Pattern**: The store is created using a `makeStore` function to ensure SSR safety and prevent state leakage between requests.
 
 ### Data Fetching
-
 - **BFF (Backend-for-Frontend)**: All YouTube API calls are proxied through Next.js Route Handlers (`src/app/api/videos/route.ts`) to keep the API key secure on the server.
 - **YouTube Integration**: The `googleapis` library is used within `src/services/youtube.ts` to interact with the YouTube Data API and map responses to internal types.
 - **Infinite Scroll**:
   - Implemented using `react-intersection-observer` in `src/components/feed/Feed.tsx`.
   - A sentinel element at the bottom of the feed triggers the next page fetch by updating the `pageToken` state in the `Feed` component.
   - RTK Query's `merge` and `serializeQueryArgs` are used in the API slice to append new pages of data to the cache instead of replacing them.
-  - **Manual Recovery**: The `refetch` function from RTK Query is used to provide "Retry" buttons for both initial load failures and pagination errors.
+  - **Manual Recovery**: The `trigger` function from `useLazyQuery` is used to provide "Retry" buttons for both initial load failures and pagination errors, often bypassing the cache (`preferCacheValue: false`) to ensure fresh data.
+
+### Theming & Styling
+- **Semantic Theming**: Uses a CSS variable-based system with OKLCH colors in `globals.css`. Supports Light, Dark, and OLED themes.
+- **Theme Management**: Integrated `next-themes` via a `ThemeProvider` to manage theme state and persist user preferences in localStorage.
+- **Tailwind CSS**: Primary utility-first styling framework.
+- **CVA (Class Variance Authority)**: Used for defining component variants (e.g., intent, size) in a type-safe way.
+- **CN Utility**: The `cn()` function in `src/lib/utils.ts` (combining `clsx` and `tailwind-merge`) is used to merge Tailwind classes and resolve conflicts.
+- **Pattern**: Prefer defining variants with `cva` and applying them via `cn(variants({ ... }), className)`.
 
 ### Image Handling
-
 - **Optimization Bypass**: YouTube thumbnails use the `unoptimized` prop in the Next.js `Image` component. This prevents "upstream response is invalid" errors from the Next.js Image Optimization API and reduces latency by fetching directly from Google's CDN.
 - **Loading States**:
   - **Shimmer Effect**: A custom CSS shimmer animation (defined in `src/app/globals.css` as `.shimmer-wrapper`) is used to provide a professional loading experience.
@@ -30,34 +35,28 @@ This document contains detailed information about the project-specific technical
 
 ## Patterns & Conventions
 
-### Styling
-- **Tailwind CSS**: Primary utility-first styling framework.
-- **CVA (Class Variance Authority)**: Used for defining component variants in a type-safe way.
-- **CN Utility**: The `cn()` function in `src/lib/utils.ts` (combining `clsx` and `tailwind-merge`) is used to merge Tailwind classes and resolve conflicts.
-- **Pattern**: Prefer defining variants with `cva` and applying them via `cn(variants({ ... }), className)`.
-
 ### Import Aliases
-
 - `~` is used as the root alias for the `src` directory.
 
 ### Component Structure
-
 - **Layouts**: Global elements (Header, Sidebar) are defined in `src/app/layout.tsx` and implemented in `src/components/layout/`.
+- **Primitives**: Basic, reusable UI elements (Buttons, Inputs) are located in `src/components/ui/`.
+- **Icons**: SVG icons are implemented as React components in `src/components/icons/`.
 - **Layout Wrappers**: Components like `VideoCardLayout` are used to share the same structure between the actual component (`VideoCard`) and its loading state (`VideoCardSkeleton`).
 - **Flexbox Constraints**: Text containers in layouts (e.g., `VideoCardLayout`) must use `flex-1` to ensure that percentage-based widths in skeleton components are calculated relative to the available space and do not collapse to 0px.
-- **Feature Components**: Feature-specific components (e.g., Feed, VideoCard) are located in `src/components/feed/`.
-- **Providers**: Application-wide providers (StoreProvider) wrap the root layout.
+- **Feature Components**: Feature-specific components (e.g., Feed, VideoCard, SearchBar) are located in feature-specific folders within `src/components/` (e.g., `src/components/feed/`).
+- **Providers**: Application-wide providers (StoreProvider, ThemeProvider) are located in `src/providers/` and wrap the root layout.
 
 ### Naming Conventions
-
 - **Folders**: `kebab-case` for routes and general directories.
 - **Components**: `PascalCase` for React components.
 - **Services**: `camelCase` for utility and service files.
 
 ## Directory Structure
-
 - `src/app`: Next.js App Router configuration, layouts, and API route handlers (e.g., `api/videos/route.ts`).
-- `src/components`: Reusable UI components, split into `layout/` and `feed/` (e.g., `Feed.tsx`, `VideoCard.tsx`, `VideoCardSkeleton.tsx`).
+- `src/components`: Reusable UI components, split into `ui/` (primitives), `layout/` (shell), and feature-specific folders (e.g., `feed/`, `search/`).
+- `src/providers`: Global application providers (StoreProvider, ThemeProvider).
+- `src/lib`: Shared utility functions (e.g., `utils.ts` with `cn()`).
 - `src/hooks`: Custom React hooks.
 - `src/mocks`: Static mock data for development (e.g., `videos.json`).
 - `src/services`: API interaction logic and data transformation (e.g., `youtube.ts`).

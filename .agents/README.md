@@ -18,10 +18,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Conventions
 
-- Use `~` as the import alias for the `src` directory.
+- **Import Aliases**: Use `~` as the root alias for `src/`. For a complete list of available shorthand aliases, refer to the `paths` configuration in `tsconfig.json`.
 - Prefix project commands with `bunx --bun` (e.g., `bunx --bun prettier --write .`).
 - Do NOT read previous agent sessions inside `.agents/sessions` unless told to do so.
 - Do NOT add or modify components inside `src/components/ui` as this folder is reserved for basic UI primitives from shadcn/ui.
+- **Styling**: Use the `cn()` utility from `~/lib/utils` for all class merges. Use `cva` for component variants.
+- **Folder Structure**: Use `kebab-case` for feature folders (e.g., `src/components/video-card`) and `PascalCase` for components.
+- **Infrastructure**: Place global providers in `src/providers/` and shared utilities in `src/lib/`.
+
 
 # Project Context
 
