@@ -1,11 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '~/components/ui/button';
 import SearchBar from '~/components/search/SearchBar';
 import { ThemeToggle } from '~/components/ui/ThemeToggle';
 
 export default function Header() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get('q') || '';
+
   return (
     <header className="border-border bg-background sticky top-0 z-50 flex h-14 items-center justify-between border-b px-4">
       {/* Logo Section */}
@@ -36,13 +40,12 @@ export default function Header() {
 
       {/* Search Section */}
       <div className="mx-4 flex max-w-2xl flex-1">
-        <SearchBar />
+        <SearchBar key={query} />
       </div>
 
       {/* Right Section */}
       <div className="flex items-center gap-3">
         <ThemeToggle />
-        {/* Profile/Upload placeholder can go here */}
       </div>
     </header>
   );

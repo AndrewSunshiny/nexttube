@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import VideoCard from '~components/VideoCard/VideoCard';
 import VideoCardSkeleton from '~components/VideoCard/VideoCardSkeleton';
@@ -18,20 +18,39 @@ export default function Feed({ query }: FeedProps) {
   const videos = data?.videos;
   const nextToken = data?.nextPageToken;
 
-  const { ref: sentinelRef } = useInView({
+  // Synchronous lock to prevent concurrent requests during the "isFetching" state lag
+  const isFetchingRef = useRef(false);
+
+  const { ref: sentinelRef, inView } = useInView({
     rootMargin: '400px',
-    onChange: (inView) => {
-      if (inView && !isLoading && !isFetching && nextToken) {
-        fetchVideos({ q: query, pageToken: nextToken });
-      }
-    },
   });
 
-  const refetch = () => {
-    if (nextToken) {
-      fetchVideos({ q: query, pageToken: nextToken }, false);
-    } else {
-      fetchVideos({ q: query }, false);
+  useEffect(() => {
+    if (
+      inView &&
+      !isLoading &&
+      !isFetching &&
+      !isFetchingRef.current &&
+      nextToken
+    ) {
+      isFetchingRef.current = true;
+      fetchVideos({ q: query, pageToken: nextToken }, false)
+        .unwrap()
+        .finally(() => {
+          isFetchingRef.current = false;
+        });
+    }
+  }, [inView, isLoading, isFetching, nextToken, query, fetchVideos]);
+
+  const refetch = async () => {
+    try {
+      if (nextToken) {
+        await fetchVideos({ q: query, pageToken: nextToken });
+      } else {
+        await fetchVideos({ q: query }, false);
+      }
+    } catch (err) {
+      console.error('Refetch error:', err);
     }
   };
 

@@ -17,26 +17,31 @@ export const youtubeApi = apiSlice.injectEndpoints({
         const query = queryArgs?.q || 'popular';
         return `${endpointName}-${query}`;
       },
-      merge: (currentCache, newItems, { args }) => {
-        // If we are fetching the first page (no pageToken), reset the cache for this query
-        if (!args?.pageToken) {
+      merge: (currentCache, newItems, { arg }) => {
+        // Note: 'arg' object is available here and contains the query arguments (e.g., { q, pageToken })
+        
+        // If there is no existing cache or no videos, this is the first page.
+        if (!currentCache || !currentCache.videos) {
           return {
             videos: newItems.videos,
             nextPageToken: newItems.nextPageToken,
           };
         }
 
-        // Otherwise, append new videos for pagination
-        if (currentCache.videos) {
-          const existingIds = new Set(currentCache.videos.map((v) => v.id));
-          const uniqueNewItems = newItems.videos.filter(
-            (v) => !existingIds.has(v.id),
-          );
-          currentCache.videos.push(...uniqueNewItems);
-        }
-        currentCache.nextPageToken = newItems.nextPageToken;
-        return currentCache;
+        // Otherwise, we are paginating. Append new videos and filter duplicates.
+        const existingIds = new Set(currentCache.videos.map((v) => v.id));
+        const uniqueNewItems = newItems.videos.filter(
+          (v) => !existingIds.has(v.id),
+        );
+
+        return {
+          ...currentCache,
+          videos: [...currentCache.videos, ...uniqueNewItems],
+          nextPageToken: newItems.nextPageToken,
+        };
       },
+
+
     }),
   }),
   overrideExisting: false,
