@@ -7,7 +7,11 @@ import VideoCardSkeleton from '~components/VideoCard/VideoCardSkeleton';
 import { useLazyGetVideosQuery } from '~/store/api/youtubeApi';
 import { Button } from '~/components/ui/button';
 
-export default function Feed() {
+interface FeedProps {
+  query?: string;
+}
+
+export default function Feed({ query }: FeedProps) {
   const [fetchVideos, { data, isLoading, isFetching, isError }] =
     useLazyGetVideosQuery();
 
@@ -18,19 +22,22 @@ export default function Feed() {
     rootMargin: '400px',
     onChange: (inView) => {
       if (inView && !isLoading && !isFetching && nextToken) {
-        fetchVideos(nextToken);
+        fetchVideos({ q: query, pageToken: nextToken });
       }
     },
   });
 
   const refetch = () => {
-    if (nextToken) fetchVideos(nextToken);
-    else fetchVideos(undefined, false);
+    if (nextToken) {
+      fetchVideos({ q: query, pageToken: nextToken }, false);
+    } else {
+      fetchVideos({ q: query }, false);
+    }
   };
 
   useEffect(() => {
-    fetchVideos(undefined);
-  }, [fetchVideos]);
+    fetchVideos({ q: query });
+  }, [fetchVideos, query]);
 
   // # render section
   if (isLoading && !videos) {

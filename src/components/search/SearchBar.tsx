@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   InputGroup,
   InputGroupInput,
@@ -10,7 +11,6 @@ import { cn } from '~/lib/utils';
 import { Search } from 'lucide-react';
 
 interface SearchBarProps {
-  onSearch?: (query: string) => void;
   className?: string;
   placeholder?: string;
   size?: 'sm' | 'md' | 'lg';
@@ -35,18 +35,21 @@ const sizeStyles = {
 };
 
 export default function SearchBar({
-  onSearch,
   className,
   placeholder = 'Search',
   size = 'md',
 }: SearchBarProps) {
-  const [query, setQuery] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') || '');
   const styles = sizeStyles[size];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSearch) {
-      onSearch(query);
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+    } else {
+      router.push('/');
     }
   };
 

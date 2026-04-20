@@ -52,6 +52,73 @@ export async function getVideos(
   }
 }
 
+export async function searchVideos(
+  query: string,
+  pageToken?: string,
+  maxResults = 20,
+): Promise<YouTubeResponse> {
+  try {
+    // Discovery Step: Search for videos matching the query
+    const searchResponse = await youtube.search.list({
+      part: ['snippet'],
+      q: query,
+      pageToken: pageToken,
+      maxResults: maxResults,
+      type: 'video',
+    });
+
+    const searchItems = searchResponse.data.items || [];
+    const nextPageToken = searchResponse.data.nextPageToken || null;
+
+    if (searchItems.length === 0) {
+      return { videos: [], nextPageToken };
+    }
+
+    // Hydration Step: Fetch detailed statistics and content details for the found videos
+    const videoIds = searchItems.map((item) => item.id?.videoId).filter(Boolean) as string[];
+    const videoResponse = await youtube.videos.list({
+      part: ['snippet', 'contentDetails', 'statistics'],
+      id: videoIds.join(','),
+    });
+
+    const videoDetailsMap = new Map(
+      (videoResponse.data.items || []).map((item) => [item.id!, item]),
+    );
+
+    // Mapping: Map the search results using the hydrated details
+    const videos = searchItems
+      .map((item) => {
+        const videoId = item.id?.videoId;
+        const details = videoId ? videoDetailsMap.get(videoId) : null;
+
+        if (!details) return null;
+
+        return {
+          id: details.id!,
+          title: details.snippet?.title || 'Untitled Video',
+          thumbnailUrl:
+            details.snippet?.thumbnails?.high?.url ||
+            details.snippet?.thumbnails?.medium?.url ||
+            '',
+          channelName: details.snippet?.channelTitle || 'Unknown Channel',
+          channelAvatarUrl: `https://i.pravatar.cc/150?u=${details.snippet?.channelId}`,
+          views: formatViews(details.statistics?.viewCount),
+          timestamp: 'Recent',
+          duration: formatDuration(details.contentDetails?.duration || 'PT0M0S'),
+        };
+      })
+      .filter((video): video is Video => video !== null);
+
+    return {
+      videos,
+      nextPageToken,
+    };
+  } catch (error) {
+    console.error('Error searching videos from YouTube API:', error);
+    throw new Error('Failed to search videos on YouTube');
+  }
+}
+
 function formatViews(views: string | null | undefined): string {
   if (!views) return '0 views';
   const num = parseInt(views, 10);
