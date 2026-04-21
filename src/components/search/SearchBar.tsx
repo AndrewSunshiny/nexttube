@@ -1,14 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   InputGroup,
   InputGroupInput,
   InputGroupButton,
 } from '~/components/ui/input-group';
+import { Spinner } from '~/components/ui/spinner';
 import { cn } from '~/lib/utils';
 import { Search } from 'lucide-react';
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from '~/components/ui/popover';
 
 interface SearchBarProps {
   className?: string;
@@ -42,14 +48,77 @@ export default function SearchBar({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const styles = sizeStyles[size];
+
+  useEffect(() => {
+    if (query.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setIsLoading(false);
+      return;
+    }
+
+    setShowSuggestions(true);
+    setIsLoading(true);
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/search/suggestions?q=${encodeURIComponent(query.trim())}`,
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setSuggestions(data);
+          setActiveIndex(-1);
+        }
+      } catch (e) {
+        console.error('Error fetching suggestions:', e);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [query]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowSuggestions(false);
     if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+      router.push(
+        `/search?q=${encodeURIComponent(query.trim()).replace(/%20/g, '+')}`,
+      );
     } else {
       router.push('/');
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setQuery(suggestion);
+    setShowSuggestions(false);
+    router.push(
+      `/search?q=${encodeURIComponent(suggestion).replace(/%20/g, '+')}`,
+    );
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) =>
+        prev < suggestions.length - 1 ? prev + 1 : prev,
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      handleSuggestionClick(suggestions[activeIndex]);
     }
   };
 
@@ -58,21 +127,62 @@ export default function SearchBar({
       onSubmit={handleSubmit}
       className={cn('flex w-full items-center gap-2', className)}
     >
-      <InputGroup className={cn(styles.group, 'rounded-full')}>
-        <InputGroupInput
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
-          className={cn(styles.input, 'rounded-full')}
-        />
-        <InputGroupButton
-          variant="outline"
-          size={styles.button}
-          className="-mr-px box-content h-full rounded-r-full"
-        >
-          <Search />
-        </InputGroupButton>
-      </InputGroup>
+      <Popover open={showSuggestions}>
+        <PopoverAnchor className="w-full">
+          <InputGroup className={cn(styles.group, 'rounded-full')}>
+            <InputGroupInput
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
+              onKeyDown={handleKeyDown}
+              onFocus={() =>
+                query.trim().length >= 2 && setShowSuggestions(true)
+              }
+              placeholder={placeholder}
+              className={cn(styles.input, 'rounded-full')}
+            />
+            <InputGroupButton
+              type="submit"
+              variant="outline"
+              size={styles.button}
+              className="-mr-px box-content h-full rounded-r-full"
+            >
+              <Search />
+            </InputGroupButton>
+          </InputGroup>
+        </PopoverAnchor>
+
+        {showSuggestions && (suggestions.length > 0 || isLoading) && (
+          <PopoverContent
+            className="w-[var(--radix-popover-trigger-width)] rounded-xl p-0"
+            align="start"
+          >
+            <ul className="bg-popover text-popover-foreground w-full overflow-hidden">
+              {isLoading && suggestions.length === 0 ? (
+                <li className="flex items-center justify-center px-4 py-4">
+                  <Spinner />
+                </li>
+              ) : (
+                suggestions.map((suggestion, index) => (
+                  <li
+                    key={`${suggestion}-${index}`}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className={cn(
+                      'cursor-pointer truncate px-4 py-2 transition-colors',
+                      activeIndex === index
+                        ? 'bg-accent text-accent-foreground'
+                        : 'hover:bg-accent hover:text-accent-foreground',
+                    )}
+                  >
+                    {suggestion}
+                  </li>
+                ))
+              )}
+            </ul>
+          </PopoverContent>
+        )}
+      </Popover>
     </form>
   );
 }
