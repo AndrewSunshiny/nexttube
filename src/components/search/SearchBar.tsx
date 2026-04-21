@@ -40,6 +40,8 @@ const sizeStyles = {
   },
 };
 
+const CHARS_TO_TRIGGER = 3;
+
 export default function SearchBar({
   className,
   placeholder = 'Search',
@@ -55,14 +57,13 @@ export default function SearchBar({
   const styles = sizeStyles[size];
 
   useEffect(() => {
-    if (query.trim().length < 2) {
+    if (query.trim().length < CHARS_TO_TRIGGER) {
       setSuggestions([]);
       setShowSuggestions(false);
       setIsLoading(false);
       return;
     }
 
-    setShowSuggestions(true);
     setIsLoading(true);
 
     const timeoutId = setTimeout(async () => {
@@ -108,18 +109,32 @@ export default function SearchBar({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) return;
 
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setActiveIndex((prev) =>
-        prev < suggestions.length - 1 ? prev + 1 : prev,
-      );
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev));
-    } else if (e.key === 'Enter' && activeIndex >= 0) {
-      e.preventDefault();
-      handleSuggestionClick(suggestions[activeIndex]);
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setActiveIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev,
+        );
+        return;
+      case 'ArrowUp':
+        e.preventDefault();
+        setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        return;
+      case 'ArrowDown':
+        e.preventDefault();
+        handleSuggestionClick(suggestions[activeIndex]);
+        return;
     }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setQuery(value);
+    if (value.trim().length >= CHARS_TO_TRIGGER) setShowSuggestions(true);
+  };
+
+  const handleInputFocus = () => {
+    if (query.trim().length >= CHARS_TO_TRIGGER) setShowSuggestions(true);
   };
 
   return (
@@ -132,13 +147,9 @@ export default function SearchBar({
           <InputGroup className={cn(styles.group, 'rounded-full')}>
             <InputGroupInput
               value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-              }}
+              onChange={(e) => handleChange(e)}
               onKeyDown={handleKeyDown}
-              onFocus={() =>
-                query.trim().length >= 2 && setShowSuggestions(true)
-              }
+              onFocus={handleInputFocus}
               placeholder={placeholder}
               className={cn(styles.input, 'rounded-full')}
             />
@@ -155,8 +166,9 @@ export default function SearchBar({
 
         {showSuggestions && (suggestions.length > 0 || isLoading) && (
           <PopoverContent
-            className="w-[var(--radix-popover-trigger-width)] rounded-xl p-0"
+            className="w-(--radix-popover-trigger-width) rounded-xl p-0"
             align="start"
+            onOpenAutoFocus={(e) => e.preventDefault()}
           >
             <ul className="bg-popover text-popover-foreground w-full overflow-hidden">
               {isLoading && suggestions.length === 0 ? (
