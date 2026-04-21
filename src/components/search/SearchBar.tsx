@@ -98,7 +98,7 @@ export default function SearchBar({
     }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = (suggestion: string = '') => {
     setQuery(suggestion);
     setShowSuggestions(false);
     router.push(
@@ -118,19 +118,21 @@ export default function SearchBar({
         return;
       case 'ArrowUp':
         e.preventDefault();
-        setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        setActiveIndex((prev) => (prev >= 0 ? prev - 1 : prev));
         return;
-      case 'ArrowDown':
+      case 'Enter':
         e.preventDefault();
-        handleSuggestionClick(suggestions[activeIndex]);
+        const finalQuery = activeIndex >= 0 ? suggestions[activeIndex] : query;
+        if (finalQuery.trim()) handleSuggestionClick(finalQuery);
+        else router.push('/');
         return;
     }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setQuery(value);
+    const value = event?.target?.value ?? '';
     if (value.trim().length >= CHARS_TO_TRIGGER) setShowSuggestions(true);
+    setQuery(value);
   };
 
   const handleInputFocus = () => {
