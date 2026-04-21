@@ -3,5 +3,6 @@
   "useTabs": false,
   "semi": true,
   "singleQuote": true,
+  "experimentalOperatorPosition": "start",
   "plugins": ["prettier-plugin-tailwindcss"]
 }

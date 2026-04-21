@@ -1,36 +1,62 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import VideoCard from '~components/VideoCard/VideoCard';
 import VideoCardSkeleton from '~components/VideoCard/VideoCardSkeleton';
 import { useLazyGetVideosQuery } from '~/store/api/youtubeApi';
 import { Button } from '~/components/ui/button';
 
-export default function Feed() {
+interface FeedProps {
+  query?: string;
+}
+
+export default function Feed({ query }: FeedProps) {
   const [fetchVideos, { data, isLoading, isFetching, isError }] =
     useLazyGetVideosQuery();
 
   const videos = data?.videos;
   const nextToken = data?.nextPageToken;
 
-  const { ref: sentinelRef } = useInView({
+  // Synchronous lock to prevent concurrent requests during the "isFetching" state lag
+  const isFetchingRef = useRef(false);
+
+  const { ref: sentinelRef, inView } = useInView({
     rootMargin: '400px',
-    onChange: (inView) => {
-      if (inView && !isLoading && !isFetching && nextToken) {
-        fetchVideos(nextToken);
-      }
-    },
   });
 
-  const refetch = () => {
-    if (nextToken) fetchVideos(nextToken);
-    else fetchVideos(undefined, false);
+  useEffect(() => {
+    if (
+      inView &&
+      !isLoading &&
+      !isFetching &&
+      !isFetchingRef.current &&
+      nextToken
+    ) {
+      isFetchingRef.current = true;
+      fetchVideos({ q: query, pageToken: nextToken }, false)
+        .unwrap()
+        .finally(() => {
+          isFetchingRef.current = false;
+        });
+    }
+  }, [inView, isLoading, isFetching, nextToken, query, fetchVideos]);
+
+  const refetch = async () => {
+    try {
+      if (nextToken) {
+        await fetchVideos({ q: query, pageToken: nextToken });
+      } else {
+        await fetchVideos({ q: query }, false);
+      }
+    } catch (err) {
+      console.error('Refetch error:', err);
+    }
   };
 
   useEffect(() => {
-    fetchVideos(undefined);
-  }, [fetchVideos]);
+    fetchVideos({ q: query });
+  }, [fetchVideos, query]);
 
   // # render section
   if (isLoading && !videos) {
